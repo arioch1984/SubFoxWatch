@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = (username: string, password: string) => {
-        if (username === 'arioch1984' && password === 'juzamdjin') {
+        if (username === 'test' && password === 'test') {
             setIsAuthenticated(true);
             localStorage.setItem('subfox_auth', 'true');
             return true;
