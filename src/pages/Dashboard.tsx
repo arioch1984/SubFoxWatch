@@ -1,0 +1,123 @@
+import React, { useMemo } from 'react';
+import { useSubscriptions } from '../context/SubscriptionContext';
+import { Card } from '../components/ui';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { format } from 'date-fns';
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+
+const Dashboard = () => {
+    const { subscriptions, getTotalMonthly, getTotalYearly, removeSubscription } = useSubscriptions();
+
+    const monthlyTotal = getTotalMonthly();
+    const yearlyTotal = getTotalYearly();
+
+    const expensesByTag = useMemo(() => {
+        const data: { [key: string]: number } = {};
+        subscriptions.forEach(sub => {
+            const monthlyCost = sub.recurrence === 'monthly' ? sub.amount :
+                sub.recurrence === 'yearly' ? sub.amount / 12 :
+                    sub.recurrence === 'quarterly' ? sub.amount / 3 :
+                        sub.recurrence === 'bimonthly' ? sub.amount / 2 : sub.amount;
+
+            sub.tags.forEach(tag => {
+                data[tag] = (data[tag] || 0) + monthlyCost;
+            });
+
+            if (sub.tags.length === 0) {
+                data['Uncategorized'] = (data['Uncategorized'] || 0) + monthlyCost;
+            }
+        });
+
+        return Object.entries(data).map(([name, value]) => ({ name, value }));
+    }, [subscriptions]);
+
+    return (
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                <p className="text-muted-foreground">Overview of your recurring expenses.</p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card className="p-6">
+                    <h3 className="text-sm font-medium text-muted-foreground">Monthly Spend</h3>
+                    <div className="mt-2 text-3xl font-bold">
+                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(monthlyTotal)}
+                    </div>
+                </Card>
+                <Card className="p-6">
+                    <h3 className="text-sm font-medium text-muted-foreground">Yearly Projection</h3>
+                    <div className="mt-2 text-3xl font-bold">
+                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(yearlyTotal)}
+                    </div>
+                </Card>
+                <Card className="p-6">
+                    <h3 className="text-sm font-medium text-muted-foreground">Active Subscriptions</h3>
+                    <div className="mt-2 text-3xl font-bold">{subscriptions.length}</div>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card className="p-6">
+                    <h3 className="mb-4 font-semibold">Expenses by Tag (Monthly)</h3>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={expensesByTag}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {expensesByTag.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    formatter={(value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(value)}
+                                />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+
+                <Card className="p-6 overflow-hidden">
+                    <h3 className="mb-4 font-semibold">Recent Subscriptions</h3>
+                    <div className="space-y-4">
+                        {subscriptions.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">No subscriptions added yet.</p>
+                        ) : (
+                            subscriptions.map((sub) => (
+                                <div key={sub.id} className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0">
+                                    <div>
+                                        <p className="font-medium">{sub.name}</p>
+                                        <p className="text-xs text-muted-foreground capitalize">{sub.recurrence} • {sub.tags.join(', ')}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-medium">
+                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: sub.currency }).format(sub.amount)}
+                                        </p>
+                                        <button
+                                            onClick={() => removeSubscription(sub.id)}
+                                            className="text-xs text-destructive hover:underline"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </Card>
+            </div>
+        </div>
+    );
+};
+
+export default Dashboard;
