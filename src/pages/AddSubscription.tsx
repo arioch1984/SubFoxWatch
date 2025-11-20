@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Button, Input, Card, Select } from '../components/ui';
+import { IconPicker, POPULAR_BRANDS } from '../components/IconPicker';
 
 const AddSubscription = () => {
     const navigate = useNavigate();
@@ -10,20 +11,20 @@ const AddSubscription = () => {
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
     const [currency, setCurrency] = useState('EUR');
+    const [icon, setIcon] = useState('');
     const [recurrence, setRecurrence] = useState<'monthly' | 'bimonthly' | 'quarterly' | 'yearly'>('monthly');
     const [tags, setTags] = useState('');
-    const [startDate, setStartDate] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         addSubscription({
             name,
+            icon,
             amount: parseFloat(amount),
             currency,
             recurrence,
             tags: tags.split(',').map(t => t.trim()).filter(t => t),
-            startDate: startDate || new Date().toISOString(),
         });
 
         navigate('/');
@@ -45,17 +46,21 @@ const AddSubscription = () => {
                                 required
                                 placeholder="e.g. Netflix"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => {
+                                    const newName = e.target.value;
+                                    setName(newName);
+                                    // Auto-detect icon
+                                    const brand = POPULAR_BRANDS.find(b => newName.toLowerCase().includes(b.name.toLowerCase()));
+                                    if (brand) {
+                                        setIcon(`brand:${brand.slug}`);
+                                    }
+                                }}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Start Date</label>
-                            <Input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
+                            <label className="text-sm font-medium">Icon</label>
+                            <IconPicker value={icon} onChange={setIcon} />
                         </div>
                     </div>
 

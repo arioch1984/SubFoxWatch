@@ -7,7 +7,7 @@ export interface Subscription {
     currency: string;
     recurrence: 'monthly' | 'bimonthly' | 'quarterly' | 'yearly';
     tags: string[];
-    startDate: string;
+    icon?: string; // Format: "brand:slug" or "generic:LucideName"
 }
 
 interface SubscriptionContextType {

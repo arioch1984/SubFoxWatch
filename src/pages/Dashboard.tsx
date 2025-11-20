@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Card } from '../components/ui';
+import { IconDisplay } from '../components/IconPicker';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { format } from 'date-fns';
+
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -95,9 +96,12 @@ const Dashboard = () => {
                         ) : (
                             subscriptions.map((sub) => (
                                 <div key={sub.id} className="flex items-center justify-between border-b border-border pb-2 last:border-0 last:pb-0">
-                                    <div>
-                                        <p className="font-medium">{sub.name}</p>
-                                        <p className="text-xs text-muted-foreground capitalize">{sub.recurrence} • {sub.tags.join(', ')}</p>
+                                    <div className="flex items-center gap-3">
+                                        <IconDisplay icon={sub.icon} className="h-8 w-8 rounded-md" />
+                                        <div>
+                                            <p className="font-medium">{sub.name}</p>
+                                            <p className="text-xs text-muted-foreground capitalize">{sub.recurrence} • {sub.tags.join(', ')}</p>
+                                        </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="font-medium">
