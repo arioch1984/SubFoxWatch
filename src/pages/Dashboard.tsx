@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Card } from '../components/ui';
 import { IconDisplay } from '../components/IconPicker';
@@ -35,9 +35,16 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground">Overview of your recurring expenses.</p>
+            <div className="flex items-center justify-between bg-card p-6 rounded-xl border border-border shadow-sm relative overflow-hidden">
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+                    <p className="text-muted-foreground mt-1">Welcome back! I'm keeping an eye on your subscriptions.</p>
+                </div>
+                <img
+                    src="/mascot-busy.png"
+                    alt="Busy Fox"
+                    className="absolute right-0 bottom-[-20px] h-40 w-auto opacity-20 md:opacity-100 md:relative md:h-32 md:bottom-0"
+                />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -75,7 +82,7 @@ const Dashboard = () => {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {expensesByTag.map((entry, index) => (
+                                    {expensesByTag.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -107,12 +114,20 @@ const Dashboard = () => {
                                         <p className="font-medium">
                                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: sub.currency }).format(sub.amount)}
                                         </p>
-                                        <button
-                                            onClick={() => removeSubscription(sub.id)}
-                                            className="text-xs text-destructive hover:underline"
-                                        >
-                                            Remove
-                                        </button>
+                                        <div className="flex gap-3 justify-end">
+                                            <button
+                                                onClick={() => window.location.href = `/edit/${sub.id}`}
+                                                className="text-xs text-primary hover:underline"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => removeSubscription(sub.id)}
+                                                className="text-xs text-destructive hover:underline"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))

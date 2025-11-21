@@ -15,6 +15,7 @@ interface SubscriptionContextType {
     addSubscription: (subscription: Omit<Subscription, 'id'>) => void;
     removeSubscription: (id: string) => void;
     updateSubscription: (id: string, subscription: Partial<Subscription>) => void;
+    importSubscriptions: (subscriptions: Subscription[]) => void;
     getTotalMonthly: () => number;
     getTotalYearly: () => number;
 }
@@ -52,6 +53,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscriptions(subscriptions.map(sub => (sub.id === id ? { ...sub, ...updated } : sub)));
     };
 
+    const importSubscriptions = (newSubscriptions: Subscription[]) => {
+        // Merge strategy: Append new ones. In a real app we might check for duplicates.
+        // For now, let's just append.
+        setSubscriptions(prev => [...prev, ...newSubscriptions]);
+    };
+
     const getMonthlyAmount = (sub: Subscription) => {
         switch (sub.recurrence) {
             case 'monthly': return sub.amount;
@@ -71,7 +78,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     return (
-        <SubscriptionContext.Provider value={{ subscriptions, addSubscription, removeSubscription, updateSubscription, getTotalMonthly, getTotalYearly }}>
+        <SubscriptionContext.Provider value={{ subscriptions, addSubscription, removeSubscription, updateSubscription, importSubscriptions, getTotalMonthly, getTotalYearly }}>
             {children}
         </SubscriptionContext.Provider>
     );

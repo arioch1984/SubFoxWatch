@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Button, Input, Card, Select } from '../components/ui';
 import { IconPicker, POPULAR_BRANDS } from '../components/IconPicker';
 
-const AddSubscription = () => {
+const EditSubscription = () => {
     const navigate = useNavigate();
-    const { addSubscription } = useSubscriptions();
+    const { id } = useParams<{ id: string }>();
+    const { subscriptions, updateSubscription } = useSubscriptions();
 
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
@@ -15,27 +16,45 @@ const AddSubscription = () => {
     const [recurrence, setRecurrence] = useState<'monthly' | 'bimonthly' | 'quarterly' | 'yearly'>('monthly');
     const [tags, setTags] = useState('');
 
+    useEffect(() => {
+        if (id) {
+            const sub = subscriptions.find(s => s.id === id);
+            if (sub) {
+                setName(sub.name);
+                setAmount(sub.amount.toString());
+                setCurrency(sub.currency);
+                setIcon(sub.icon || '');
+                setRecurrence(sub.recurrence);
+                setTags(sub.tags.join(', '));
+            } else {
+                // Subscription not found, redirect to dashboard
+                navigate('/');
+            }
+        }
+    }, [id, subscriptions, navigate]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        addSubscription({
-            name,
-            icon,
-            amount: parseFloat(amount),
-            currency,
-            recurrence,
-            tags: tags.split(',').map(t => t.trim()).filter(t => t),
-        });
-
-        navigate('/');
+        if (id) {
+            updateSubscription(id, {
+                name,
+                icon,
+                amount: parseFloat(amount),
+                currency,
+                recurrence,
+                tags: tags.split(',').map(t => t.trim()).filter(t => t),
+            });
+            navigate('/');
+        }
     };
 
     return (
         <div className="max-w-2xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Add Subscription</h1>
-                    <p className="text-muted-foreground">Track a new recurring expense.</p>
+                    <h1 className="text-3xl font-bold tracking-tight">Edit Subscription</h1>
+                    <p className="text-muted-foreground">Modify your subscription details.</p>
                 </div>
                 <img
                     src="/mascot-peeking.png"
@@ -56,10 +75,12 @@ const AddSubscription = () => {
                                 onChange={(e) => {
                                     const newName = e.target.value;
                                     setName(newName);
-                                    // Auto-detect icon
-                                    const brand = POPULAR_BRANDS.find(b => newName.toLowerCase().includes(b.name.toLowerCase()));
-                                    if (brand) {
-                                        setIcon(`brand:${brand.slug}`);
+                                    // Only auto-detect if icon is empty to avoid overwriting user choice
+                                    if (!icon) {
+                                        const brand = POPULAR_BRANDS.find(b => newName.toLowerCase().includes(b.name.toLowerCase()));
+                                        if (brand) {
+                                            setIcon(`brand:${brand.slug}`);
+                                        }
                                     }
                                 }}
                             />
@@ -125,7 +146,7 @@ const AddSubscription = () => {
                             Cancel
                         </Button>
                         <Button type="submit">
-                            Add Subscription
+                            Save Changes
                         </Button>
                     </div>
                 </form>
@@ -134,4 +155,4 @@ const AddSubscription = () => {
     );
 };
 
-export default AddSubscription;
+export default EditSubscription;

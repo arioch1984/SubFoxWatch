@@ -4,9 +4,9 @@ import { SubscriptionProvider } from './context/SubscriptionContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AddSubscription from './pages/AddSubscription';
+import EditSubscription from './pages/EditSubscription';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
-import { Toaster } from 'sonner'; // Assuming we might want toast notifications, but I'll stick to basic for now or add it later. 
-// Actually, let's stick to the plan. I didn't add sonner in package.json, so I'll skip it for now.
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated } = useAuth();
@@ -31,6 +31,8 @@ function App() {
                                         <Routes>
                                             <Route path="/" element={<Dashboard />} />
                                             <Route path="/add" element={<AddSubscription />} />
+                                            <Route path="/edit/:id" element={<EditSubscription />} />
+                                            <Route path="/settings" element={<Settings />} />
                                         </Routes>
                                     </Layout>
                                 </ProtectedRoute>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, PlusCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, LogOut, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -17,15 +17,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/add', icon: PlusCircle, label: 'Add Subscription' },
+        { path: '/settings', icon: Settings, label: 'Settings' },
     ];
 
     return (
         <div className="min-h-screen bg-background flex flex-col md:flex-row">
             {/* Sidebar for Desktop */}
             <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card p-4">
-                <div className="mb-8 flex items-center gap-2 px-2">
-                    <div className="h-8 w-8 rounded-full bg-primary" />
-                    <span className="text-xl font-bold tracking-tight">SubFox</span>
+                <div className="mb-8 flex items-center gap-3 px-2">
+                    <img src="/logo.png" alt="SubFox Logo" className="h-10 w-10 rounded-xl shadow-sm" />
+                    <span className="text-xl font-bold tracking-tight text-primary">SubFox</span>
                 </div>
 
                 <nav className="flex-1 space-y-2">
