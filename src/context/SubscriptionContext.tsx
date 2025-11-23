@@ -23,18 +23,17 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-
-    useEffect(() => {
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
         const storedData = localStorage.getItem('subfox_subscriptions');
         if (storedData) {
             try {
-                setSubscriptions(JSON.parse(storedData));
+                return JSON.parse(storedData);
             } catch (e) {
                 console.error('Failed to parse subscriptions', e);
             }
         }
-    }, []);
+        return [];
+    });
 
     useEffect(() => {
         localStorage.setItem('subfox_subscriptions', JSON.stringify(subscriptions));
