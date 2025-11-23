@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Button, Input, Card, Select } from '../components/ui';
 import { IconPicker, POPULAR_BRANDS } from '../components/IconPicker';
+import mascotImage from '../assets/images/mascotte.png';
 
 const AddSubscription = () => {
     const navigate = useNavigate();
@@ -38,7 +39,7 @@ const AddSubscription = () => {
                     <p className="text-muted-foreground">Track a new recurring expense.</p>
                 </div>
                 <img
-                    src="/mascot-peeking.png"
+                    src={mascotImage}
                     alt="Peeking Fox"
                     className="h-24 w-auto -mb-4 transform translate-y-2"
                 />

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Card } from '../components/ui';
 import { Lock, User } from 'lucide-react';
+import mascotImage from '../assets/images/mascotte.png';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -24,6 +25,9 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <Card className="w-full max-w-md p-8 space-y-6 border-border/50 bg-card/50 backdrop-blur-xl">
                 <div className="space-y-2 text-center">
+                    <div className="flex justify-center mb-4">
+                        <img src={mascotImage} alt="SubFox Mascot" className="h-32 w-auto" />
+                    </div>
                     <h1 className="text-3xl font-bold tracking-tighter bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
                         SubFoxWatch
                     </h1>

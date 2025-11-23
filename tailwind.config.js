@@ -26,6 +26,13 @@ export default {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
                 ring: "hsl(var(--ring))",
+                // Custom Fox Theme Colors
+                fox: {
+                    orange: "#dc6428",
+                    teal: "#283c3c",
+                    accent: "#c86428",
+                    bg: "#eff5f6",
+                }
             },
         },
     },

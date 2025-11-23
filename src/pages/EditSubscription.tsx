@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { Button, Input, Card, Select } from '../components/ui';
 import { IconPicker, POPULAR_BRANDS } from '../components/IconPicker';
+import mascotImage from '../assets/images/mascotte.png';
 
 const EditSubscription = () => {
     const navigate = useNavigate();
@@ -57,7 +58,7 @@ const EditSubscription = () => {
                     <p className="text-muted-foreground">Modify your subscription details.</p>
                 </div>
                 <img
-                    src="/mascot-peeking.png"
+                    src={mascotImage}
                     alt="Peeking Fox"
                     className="h-24 w-auto -mb-4 transform translate-y-2"
                 />

@@ -3,6 +3,7 @@ import { useSubscriptions } from '../context/SubscriptionContext';
 import { Card } from '../components/ui';
 import { IconDisplay } from '../components/IconPicker';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import mascotImage from '../assets/images/mascotte.png';
 
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
@@ -41,7 +42,7 @@ const Dashboard = () => {
                     <p className="text-muted-foreground mt-1">Welcome back! I'm keeping an eye on your subscriptions.</p>
                 </div>
                 <img
-                    src="/mascot-busy.png"
+                    src={mascotImage}
                     alt="Busy Fox"
                     className="absolute right-0 bottom-[-20px] h-40 w-auto opacity-20 md:opacity-100 md:relative md:h-32 md:bottom-0"
                 />
