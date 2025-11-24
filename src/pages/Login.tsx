@@ -9,15 +9,23 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Added loading state
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (login(username, password)) {
+        setError('');
+        setLoading(true);
+
+        try {
+            const { error } = await login(username, password);
+            if (error) throw error;
             navigate('/');
-        } else {
-            setError('Invalid credentials');
+        } catch (err: any) {
+            setError(err.message || 'Failed to login');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -36,14 +44,23 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <div className="relative">
-                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                type="text"
-                                placeholder="Username"
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                            Email
+                        </label>
+                        <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <User className="h-5 w-5 text-slate-400" />
+                            </div>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="pl-10"
+                                className="focus:ring-orange-500 focus:border-orange-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md"
+                                placeholder="you@example.com"
                             />
                         </div>
                     </div>

@@ -1,36 +1,70 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: (username: string, password: string) => boolean;
-    logout: () => void;
+    user: any | null;
+    login: (email: string, pass: string) => Promise<{ error: any }>;
+    signUp: (email: string, pass: string) => Promise<{ error: any }>;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-        const storedAuth = localStorage.getItem('subfox_auth');
-        return storedAuth === 'true';
-    });
+    const [session, setSession] = useState<Session | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const login = (username: string, password: string) => {
-        if (username === 'test' && password === 'test') {
-            setIsAuthenticated(true);
-            localStorage.setItem('subfox_auth', 'true');
-            return true;
-        }
-        return false;
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setLoading(false);
+        }).catch((err) => {
+            console.error('Supabase auth error:', err);
+            setLoading(false);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const login = async (email: string, pass: string) => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password: pass,
+        });
+        return { error };
     };
 
-    const logout = () => {
-        setIsAuthenticated(false);
-        localStorage.removeItem('subfox_auth');
+    const signUp = async (email: string, pass: string) => {
+        const { error } = await supabase.auth.signUp({
+            email,
+            password: pass,
+        });
+        return { error };
+    };
+
+    const logout = async () => {
+        await supabase.auth.signOut();
+    };
+
+    const value = {
+        isAuthenticated: !!session,
+        user: session?.user ?? null,
+        login,
+        signUp,
+        logout,
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-            {children}
+        <AuthContext.Provider value={value}>
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
