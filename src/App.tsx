@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
+import { Toaster } from './components/ui/sonner';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -58,6 +59,7 @@ function App() {
                     </Routes>
                 </Router>
             </SubscriptionProvider>
+            <Toaster />
         </AuthProvider>
     );
 }
