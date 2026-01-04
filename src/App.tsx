@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddSubscription from './pages/AddSubscription';
 import EditSubscription from './pages/EditSubscription';
+import Settings from './pages/Settings';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated } = useAuth();
@@ -43,6 +44,14 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <EditSubscription />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings"
+                            element={
+                                <ProtectedRoute>
+                                    <Settings />
                                 </ProtectedRoute>
                             }
                         />
