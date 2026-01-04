@@ -79,8 +79,8 @@ const Login = () => {
 
                     {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
-                    <Button type="submit" className="w-full">
-                        Sign In
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? 'Signing In...' : 'Sign In'}
                     </Button>
                 </form>
             </Card>
