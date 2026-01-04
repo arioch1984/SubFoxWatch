@@ -60,7 +60,7 @@ const Login = () => {
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 className="focus:ring-orange-500 focus:border-orange-500 block w-full pl-10 sm:text-sm border-slate-300 rounded-md"
-                                placeholder="you@example.com"
+                                placeholder="test@test.com"
                             />
                         </div>
                     </div>
@@ -69,7 +69,7 @@ const Login = () => {
                             <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="password"
-                                placeholder="Password"
+                                placeholder="test"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="pl-10"
