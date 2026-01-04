@@ -35,25 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = async (email: string, pass: string) => {
-        if (email === 'test@test.com' && pass === 'test') {
-            const mockUser = {
-                id: 'mock-user-id',
-                email: 'test@test.com',
-                user_metadata: { full_name: 'Test User' },
-                app_metadata: { provider: 'email' },
-                aud: 'authenticated',
-                created_at: new Date().toISOString()
-            };
-            const mockSession = {
-                access_token: 'mock-token',
-                refresh_token: 'mock-refresh-token',
-                expires_in: 3600,
-                token_type: 'bearer',
-                user: mockUser
-            };
-            setSession(mockSession as unknown as Session);
-            return { error: null };
-        }
+
 
         const { error } = await supabase.auth.signInWithPassword({
             email,
@@ -71,10 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = async () => {
-        if (session?.user?.email === 'test@test.com') {
-            setSession(null);
-            return;
-        }
+
         await supabase.auth.signOut();
     };
 
