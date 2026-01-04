@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
 
 export interface Subscription {
     id: string;
@@ -7,55 +9,114 @@ export interface Subscription {
     currency: string;
     recurrence: 'monthly' | 'bimonthly' | 'quarterly' | 'yearly';
     tags: string[];
-    icon?: string; // Format: "brand:slug" or "generic:LucideName"
+    icon?: string;
+    user_id?: string;
 }
 
 interface SubscriptionContextType {
     subscriptions: Subscription[];
-    addSubscription: (subscription: Omit<Subscription, 'id'>) => void;
-    removeSubscription: (id: string) => void;
-    updateSubscription: (id: string, subscription: Partial<Subscription>) => void;
-    importSubscriptions: (subscriptions: Subscription[]) => void;
+    addSubscription: (subscription: Omit<Subscription, 'id'>) => Promise<void>;
+    removeSubscription: (id: string) => Promise<void>;
+    updateSubscription: (id: string, subscription: Partial<Subscription>) => Promise<void>;
+    importSubscriptions: (subscriptions: Subscription[]) => Promise<void>;
     getTotalMonthly: () => number;
     getTotalYearly: () => number;
+    loading: boolean;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
-        const storedData = localStorage.getItem('subfox_subscriptions');
-        if (storedData) {
-            try {
-                return JSON.parse(storedData);
-            } catch (e) {
-                console.error('Failed to parse subscriptions', e);
-            }
-        }
-        return [];
-    });
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
     useEffect(() => {
-        localStorage.setItem('subfox_subscriptions', JSON.stringify(subscriptions));
-    }, [subscriptions]);
+        if (user) {
+            fetchSubscriptions();
+        } else {
+            setSubscriptions([]);
+            setLoading(false);
+        }
+    }, [user]);
 
-    const addSubscription = (subscription: Omit<Subscription, 'id'>) => {
-        const newSubscription = { ...subscription, id: crypto.randomUUID() };
-        setSubscriptions([...subscriptions, newSubscription]);
+    const fetchSubscriptions = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .select('*');
+
+            if (error) throw error;
+            setSubscriptions(data || []);
+        } catch (error) {
+            console.error('Error fetching subscriptions:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const removeSubscription = (id: string) => {
-        setSubscriptions(subscriptions.filter(sub => sub.id !== id));
+    const addSubscription = async (subscription: Omit<Subscription, 'id'>) => {
+        if (!user) return;
+        try {
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .insert([{ ...subscription, user_id: user.id }])
+                .select()
+                .single();
+
+            if (error) throw error;
+            setSubscriptions([...subscriptions, data]);
+        } catch (error) {
+            console.error('Error adding subscription:', error);
+        }
     };
 
-    const updateSubscription = (id: string, updated: Partial<Subscription>) => {
-        setSubscriptions(subscriptions.map(sub => (sub.id === id ? { ...sub, ...updated } : sub)));
+    const removeSubscription = async (id: string) => {
+        try {
+            const { error } = await supabase
+                .from('subscriptions')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            setSubscriptions(subscriptions.filter(sub => sub.id !== id));
+        } catch (error) {
+            console.error('Error removing subscription:', error);
+        }
     };
 
-    const importSubscriptions = (newSubscriptions: Subscription[]) => {
-        // Merge strategy: Append new ones. In a real app we might check for duplicates.
-        // For now, let's just append.
-        setSubscriptions(prev => [...prev, ...newSubscriptions]);
+    const updateSubscription = async (id: string, updated: Partial<Subscription>) => {
+        try {
+            const { error } = await supabase
+                .from('subscriptions')
+                .update(updated)
+                .eq('id', id);
+
+            if (error) throw error;
+            setSubscriptions(subscriptions.map(sub => (sub.id === id ? { ...sub, ...updated } : sub)));
+        } catch (error) {
+            console.error('Error updating subscription:', error);
+        }
+    };
+
+    const importSubscriptions = async (newSubscriptions: Subscription[]) => {
+        if (!user) return;
+        try {
+            const subscriptionsToInsert = newSubscriptions.map(sub => {
+                const { id, ...rest } = sub;
+                return { ...rest, user_id: user.id };
+            });
+
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .insert(subscriptionsToInsert)
+                .select();
+
+            if (error) throw error;
+            setSubscriptions([...subscriptions, ...(data || [])]);
+        } catch (error) {
+            console.error('Error importing subscriptions:', error);
+        }
     };
 
     const getMonthlyAmount = (sub: Subscription) => {
@@ -77,7 +138,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     return (
-        <SubscriptionContext.Provider value={{ subscriptions, addSubscription, removeSubscription, updateSubscription, importSubscriptions, getTotalMonthly, getTotalYearly }}>
+        <SubscriptionContext.Provider value={{ subscriptions, addSubscription, removeSubscription, updateSubscription, importSubscriptions, getTotalMonthly, getTotalYearly, loading }}>
             {children}
         </SubscriptionContext.Provider>
     );
