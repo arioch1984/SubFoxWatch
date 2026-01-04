@@ -50,9 +50,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         // Then try to sync with Supabase
         try {
-            if (user?.email === 'test@test.com') {
-                return;
-            }
+
 
             const { data, error } = await supabase
                 .from('subscriptions')
@@ -85,10 +83,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
 
         try {
-            if (user.email === 'test@test.com') {
-                toast.success('Subscription saved locally (Test Mode)');
-                return;
-            }
+
 
             const { data, error } = await supabase
                 .from('subscriptions')
@@ -118,9 +113,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
 
         try {
-            if (user?.email === 'test@test.com') {
-                return;
-            }
+
 
             const { error } = await supabase
                 .from('subscriptions')
@@ -144,9 +137,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
 
         try {
-            if (user?.email === 'test@test.com') {
-                return;
-            }
+
 
             const { error } = await supabase
                 .from('subscriptions')
@@ -175,10 +166,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(combinedSubscriptions));
 
         try {
-            if (user.email === 'test@test.com') {
-                toast.success('Imported locally (Test Mode)');
-                return;
-            }
+
 
             const payload = newSubscriptions.map(sub => {
                 const { id, ...rest } = sub;
