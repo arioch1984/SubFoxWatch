@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, PlusCircle, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, LogOut, Settings, Menu, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const handleLogout = () => {
         logout();
@@ -55,12 +57,53 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </aside>
 
             {/* Mobile Header */}
-            <header className="md:hidden flex items-center justify-between border-b border-border bg-card p-4">
-                <span className="text-xl font-bold">SubFox</span>
-                <button onClick={handleLogout} className="p-2">
-                    <LogOut className="h-5 w-5" />
+            <header className="md:hidden flex items-center justify-between border-b border-border bg-card p-4 sticky top-0 z-40">
+                <div className="flex items-center gap-2">
+                    <img src="/logo.png" alt="SubFox" className="h-8 w-8 rounded-lg" />
+                    <span className="text-xl font-bold">SubFox</span>
+                </div>
+                <button onClick={() => setIsMenuOpen(true)} className="p-2">
+                    <Menu className="h-6 w-6" />
                 </button>
             </header>
+
+            {/* Mobile Full Screen Menu */}
+            {isMenuOpen && (
+                <div className="fixed inset-0 z-50 flex flex-col bg-background animate-in slide-in-from-right md:hidden">
+                    <div className="flex items-center justify-between p-4 border-b border-border">
+                        <div className="flex items-center gap-2">
+                            <img src="/logo.png" alt="SubFox" className="h-8 w-8 rounded-lg" />
+                            <span className="text-xl font-bold">SubFox</span>
+                        </div>
+                        <button onClick={() => setIsMenuOpen(false)} className="p-2">
+                            <X className="h-6 w-6" />
+                        </button>
+                    </div>
+                    <nav className="flex-1 flex flex-col p-6 gap-4">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={() => setIsMenuOpen(false)}
+                                className={cn(
+                                    "flex items-center gap-4 rounded-xl p-4 text-lg font-medium transition-colors bg-card/50",
+                                    location.pathname === item.path ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                                )}
+                            >
+                                <item.icon className="h-6 w-6" />
+                                {item.label}
+                            </Link>
+                        ))}
+                        <button
+                            onClick={handleLogout}
+                            className="mt-auto flex items-center gap-4 rounded-xl p-4 text-lg font-medium text-destructive transition-colors bg-destructive/10 hover:bg-destructive/20"
+                        >
+                            <LogOut className="h-6 w-6" />
+                            Logout
+                        </button>
+                    </nav>
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
@@ -68,23 +111,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     {children}
                 </div>
             </main>
-
-            {/* Mobile Bottom Nav */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border bg-card flex justify-around p-2">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.path}
-                        to={item.path}
-                        className={cn(
-                            "flex flex-col items-center gap-1 p-2 text-xs font-medium transition-colors",
-                            location.pathname === item.path ? "text-primary" : "text-muted-foreground"
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                ))}
-            </nav>
         </div>
     );
 };
