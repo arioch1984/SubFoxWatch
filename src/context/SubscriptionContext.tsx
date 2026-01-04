@@ -42,6 +42,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const fetchSubscriptions = async () => {
         try {
+            if (user?.email === 'test@test.com') {
+                const stored = localStorage.getItem('subfoxwatch_subscriptions');
+                if (stored) {
+                    setSubscriptions(JSON.parse(stored));
+                }
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('subscriptions')
                 .select('*');
@@ -58,6 +66,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const addSubscription = async (subscription: Omit<Subscription, 'id'>) => {
         if (!user) return;
         try {
+            if (user.email === 'test@test.com') {
+                const newSub = { ...subscription, id: crypto.randomUUID(), user_id: 'mock-user-id' };
+                const newSubscriptions = [...subscriptions, newSub];
+                setSubscriptions(newSubscriptions);
+                localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('subscriptions')
                 .insert([{ ...subscription, user_id: user.id }])
@@ -73,6 +89,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const removeSubscription = async (id: string) => {
         try {
+            if (user?.email === 'test@test.com') {
+                const newSubscriptions = subscriptions.filter(sub => sub.id !== id);
+                setSubscriptions(newSubscriptions);
+                localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
+                return;
+            }
+
             const { error } = await supabase
                 .from('subscriptions')
                 .delete()
@@ -87,6 +110,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const updateSubscription = async (id: string, updated: Partial<Subscription>) => {
         try {
+            if (user?.email === 'test@test.com') {
+                const newSubscriptions = subscriptions.map(sub => (sub.id === id ? { ...sub, ...updated } : sub));
+                setSubscriptions(newSubscriptions);
+                localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(newSubscriptions));
+                return;
+            }
+
             const { error } = await supabase
                 .from('subscriptions')
                 .update(updated)
@@ -102,6 +132,17 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const importSubscriptions = async (newSubscriptions: Subscription[]) => {
         if (!user) return;
         try {
+            if (user.email === 'test@test.com') {
+                const subscriptionsToInsert = newSubscriptions.map(sub => {
+                    const { id, ...rest } = sub;
+                    return { ...rest, id: crypto.randomUUID(), user_id: 'mock-user-id' } as Subscription;
+                });
+                const combinedSubscriptions = [...subscriptions, ...subscriptionsToInsert];
+                setSubscriptions(combinedSubscriptions);
+                localStorage.setItem('subfoxwatch_subscriptions', JSON.stringify(combinedSubscriptions));
+                return;
+            }
+
             const subscriptionsToInsert = newSubscriptions.map(sub => {
                 const { id, ...rest } = sub;
                 return { ...rest, user_id: user.id };

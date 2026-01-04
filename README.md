@@ -52,7 +52,7 @@ Follow these steps to run the project locally on your machine.
 
 Since there is no backend, the app uses a hardcoded credential set for demonstration purposes:
 
-- **Username**: `test`
+- **Username**: `test@test.com`
 - **Password**: `test`
 
 ## 📱 Installing as PWA
